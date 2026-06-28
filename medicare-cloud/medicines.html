@@ -46,7 +46,10 @@
     <main class="main-content">
       <div class="page-header">
         <h1>💊 Medicine Tracker</h1>
-        <button class="btn btn-primary" onclick="toggleForm()">+ Add Medicine</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline" onclick="requestNotificationPermission()">🔔 Enable Reminders</button>
+          <button class="btn btn-primary" onclick="toggleForm()">+ Add Medicine</button>
+        </div>
       </div>
 
       <!-- ALERT -->
@@ -298,6 +301,57 @@
     function logout() {
       localStorage.removeItem('mc_current_user');
       window.location.href = 'login.html';
+    }
+
+    // ── BROWSER NOTIFICATIONS ──────────────────────────────────
+    function requestNotificationPermission() {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            showAlert('✅ Notifications enabled! You will get medicine reminders.', 'success');
+            startReminderChecker();
+          } else {
+            showAlert('⚠️ Please allow notifications to receive medicine reminders.', 'danger');
+          }
+        });
+      }
+    }
+
+    function startReminderChecker() {
+      // Check every 30 seconds if any medicine time matches current time
+      setInterval(() => {
+        const meds = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+        const now  = new Date();
+        const currentTime = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        const notified = JSON.parse(localStorage.getItem('mc_notified_' + now.toDateString()) || '[]');
+
+        meds.forEach((m, i) => {
+          if (m.time === currentTime && !notified.includes(String(i))) {
+            // Show browser notification
+            if (Notification.permission === 'granted') {
+              const notif = new Notification('💊 MediCare Cloud Reminder', {
+                body: `Time to take ${m.name} ${m.dosage}!
+${m.instructions || ''}`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
+                badge: 'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
+                requireInteraction: true
+              });
+              notif.onclick = () => { window.focus(); notif.close(); };
+            }
+            // Also show on-screen alert
+            showAlert(`⏰ REMINDER: Time to take ${m.name} ${m.dosage}!`, 'success');
+
+            // Mark as notified for today
+            notified.push(String(i));
+            localStorage.setItem('mc_notified_' + now.toDateString(), JSON.stringify(notified));
+          }
+        });
+      }, 30000); // check every 30 seconds
+    }
+
+    // Auto-start checker if permission already granted
+    if (Notification.permission === 'granted') {
+      startReminderChecker();
     }
 
     loadMedicines();

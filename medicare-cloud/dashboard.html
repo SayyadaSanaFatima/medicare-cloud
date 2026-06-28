@@ -215,6 +215,84 @@
       window.location.href = 'login.html';
     }
 
+    // ── BROWSER NOTIFICATION REMINDER CHECKER ─────────────────
+    function startReminderChecker() {
+      setInterval(() => {
+        const meds = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+        const now  = new Date();
+        const currentTime = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        const notified = JSON.parse(localStorage.getItem('mc_notified_' + now.toDateString()) || '[]');
+
+        meds.forEach((m, i) => {
+          if (m.time === currentTime && !notified.includes(String(i))) {
+            if (Notification.permission === 'granted') {
+              const notif = new Notification('💊 MediCare Cloud Reminder', {
+                body: `Time to take ${m.name} ${m.dosage}!
+${m.instructions || ''}`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
+                requireInteraction: true
+              });
+              notif.onclick = () => { window.focus(); notif.close(); };
+            }
+            // On-screen popup banner
+            showReminderBanner(m);
+            notified.push(String(i));
+            localStorage.setItem('mc_notified_' + now.toDateString(), JSON.stringify(notified));
+          }
+        });
+      }, 30000);
+    }
+
+    function showReminderBanner(m) {
+      // Create floating reminder banner
+      const banner = document.createElement('div');
+      banner.style.cssText = `
+        position:fixed; top:80px; right:20px; z-index:9999;
+        background:#fff; border:2px solid #0078d4;
+        border-radius:12px; padding:16px 20px;
+        box-shadow:0 8px 30px rgba(0,120,212,0.25);
+        max-width:300px; animation:slideIn 0.3s ease;
+        font-family:'Poppins',sans-serif;
+      `;
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:1.5rem;">💊</span>
+          <strong style="color:#0078d4;font-size:0.95rem;">Medicine Reminder!</strong>
+        </div>
+        <p style="font-size:0.88rem;color:#333;margin:0 0 12px;">
+          Time to take <strong>${m.name}</strong> ${m.dosage}
+          ${m.instructions ? '<br><small style="color:#666">' + m.instructions + '</small>' : ''}
+        </p>
+        <button onclick="this.parentElement.remove()" style="
+          background:#0078d4;color:#fff;border:none;
+          padding:6px 14px;border-radius:6px;
+          font-size:0.82rem;cursor:pointer;font-family:'Poppins',sans-serif;">
+          ✓ Got it!
+        </button>
+      `;
+      document.body.appendChild(banner);
+      // Auto remove after 60 seconds
+      setTimeout(() => { if (banner.parentElement) banner.remove(); }, 60000);
+    }
+
+    // Add slide-in animation
+    const style = document.createElement('style');
+    style.textContent = '@keyframes slideIn { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } }';
+    document.head.appendChild(style);
+
+    // Request notification permission on dashboard load
+    if ('Notification' in window && Notification.permission === 'default') {
+      setTimeout(() => {
+        if (confirm('🔔 Allow MediCare Cloud to send medicine reminders?')) {
+          Notification.requestPermission();
+        }
+      }, 2000);
+    }
+
+    if (Notification.permission === 'granted') {
+      startReminderChecker();
+    }
+
     loadDashboard();
   </script>
 </body>

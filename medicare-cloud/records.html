@@ -195,6 +195,31 @@
     }
 
     function uploadRecord() {
+      // Read file as base64 to store in localStorage for preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const fileData = e.target.result;
+        const records = JSON.parse(localStorage.getItem("mc_records") || "[]");
+        records.push({
+          name:  selectedFile.name,
+          type:  document.getElementById("recType").value,
+          notes: document.getElementById("recNotes").value.trim(),
+          size:  (selectedFile.size / 1024).toFixed(1) + " KB",
+          date:  new Date().toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" }),
+          fileData: fileData,
+          fileType: selectedFile.type
+        });
+        localStorage.setItem("mc_records", JSON.stringify(records));
+        clearFile();
+        document.getElementById("recType").value  = "";
+        document.getElementById("recNotes").value = "";
+        showAlert("✅ Record uploaded successfully!", "success");
+        loadRecords();
+      };
+      reader.readAsDataURL(selectedFile);
+      return;
+      // OLD CODE BELOW (replaced by above)
+
       if (!selectedFile) { showAlert('Please select a file.', 'danger'); return; }
       const type  = document.getElementById('recType').value;
       const notes = document.getElementById('recNotes').value.trim();
@@ -262,7 +287,17 @@
     function viewRecord(i) {
       const records = JSON.parse(localStorage.getItem('mc_records') || '[]');
       const r = records[i];
-      alert(`📄 Record Details\n\nFile: ${r.name}\nType: ${r.type}\nNotes: ${r.notes || 'None'}\nDate: ${r.date}\nSize: ${r.size}\n\nIn Azure deployment, this opens the secure Blob Storage download link.`);
+      if (r.fileData) {
+        // Open file in new tab
+        const win = window.open();
+        if (r.fileType === 'application/pdf') {
+          win.document.write('<iframe src="' + r.fileData + '" style="width:100%;height:100vh;border:none;"></iframe>');
+        } else {
+          win.document.write('<img src="' + r.fileData + '" style="max-width:100%;height:auto;" />');
+        }
+      } else {
+        alert('File preview not available. In Azure deployment, files open via secure Blob Storage URL.');
+      }
     }
 
     function logout() {
