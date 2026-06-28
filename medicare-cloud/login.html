@@ -21,58 +21,56 @@
         <button class="auth-tab" onclick="switchTab('register')">Register</button>
       </div>
 
+      <!-- ALERT BOX -->
       <div class="alert" id="authAlert"></div>
 
       <!-- LOGIN FORM -->
       <div class="auth-form active" id="loginForm">
         <div class="form-group">
           <label class="form-label">Email Address</label>
-          <input type="email" class="form-control" id="loginEmail" placeholder="your@email.com" />
+          <input type="email" class="form-control" id="loginEmail" placeholder="your@email.com" required />
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" />
+          <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required />
         </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;" onclick="handleLogin()">
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 11px;" onclick="handleLogin()">
           Login to Dashboard
         </button>
-        <p style="text-align:center;font-size:0.82rem;color:var(--gray);margin-top:16px;">
-          Don't have an account? <a href="#" onclick="switchTab('register')" style="color:var(--primary);font-weight:500;">Register here</a>
+        <p style="text-align: center; font-size: 0.82rem; color: var(--gray); margin-top: 16px;">
+          Don't have an account? <a href="#" onclick="switchTab('register')" style="color: var(--primary); font-weight: 500;">Register here</a>
         </p>
-        <div style="margin-top:16px;padding:12px;background:var(--primary-light);border-radius:8px;font-size:0.8rem;color:var(--primary);">
-          <strong>Demo account:</strong> demo@medicare.com / demo123
-        </div>
       </div>
 
       <!-- REGISTER FORM -->
       <div class="auth-form" id="registerForm">
         <div class="form-group">
           <label class="form-label">Full Name</label>
-          <input type="text" class="form-control" id="regName" placeholder="Your full name" />
+          <input type="text" class="form-control" id="regName" placeholder="Your full name" required />
         </div>
         <div class="form-group">
           <label class="form-label">Email Address</label>
-          <input type="email" class="form-control" id="regEmail" placeholder="your@email.com" />
+          <input type="email" class="form-control" id="regEmail" placeholder="your@email.com" required />
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Password</label>
-            <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" />
+            <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" required />
           </div>
           <div class="form-group">
             <label class="form-label">Confirm Password</label>
-            <input type="password" class="form-control" id="regConfirm" placeholder="Repeat password" />
+            <input type="password" class="form-control" id="regConfirm" placeholder="Repeat password" required />
           </div>
         </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;" onclick="handleRegister()">
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 11px;" onclick="handleRegister()">
           Create Account
         </button>
-        <p style="text-align:center;font-size:0.82rem;color:var(--gray);margin-top:16px;">
-          Already have an account? <a href="#" onclick="switchTab('login')" style="color:var(--primary);font-weight:500;">Login here</a>
+        <p style="text-align: center; font-size: 0.82rem; color: var(--gray); margin-top: 16px;">
+          Already have an account? <a href="#" onclick="switchTab('login')" style="color: var(--primary); font-weight: 500;">Login here</a>
         </p>
       </div>
 
-      <p style="text-align:center;font-size:0.75rem;color:#adb5bd;margin-top:20px;">
+      <p style="text-align: center; font-size: 0.75rem; color: #adb5bd; margin-top: 20px;">
         🔒 Your data is stored securely on Microsoft Azure
       </p>
     </div>
@@ -104,36 +102,16 @@
       const pass  = document.getElementById('loginPassword').value.trim();
       if (!email || !pass) { showAlert('Please fill in all fields.', 'danger'); return; }
 
-      // Built-in demo accounts — always work regardless of localStorage
-      const demoAccounts = [
-        { name: 'Sana Fatima', email: 'demo@medicare.com',       password: 'demo123' },
-        { name: 'Sana Fatima', email: 'b24cn003@kitsw.ac.in',    password: 'demo123' },
-        { name: 'Sana Fatima', email: 'sanafatima@medicare.com', password: 'demo123' },
-      ];
-      const demoUser = demoAccounts.find(u => u.email === email && u.password === pass);
-      if (demoUser) {
-        localStorage.setItem('mc_current_user', JSON.stringify(demoUser));
-        showAlert('Login successful! Redirecting...', 'success');
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
-        return;
-      }
-
-      // Registered users from localStorage
+      // Demo: save to localStorage and redirect
+      // In real app: send POST request to Flask API
       const users = JSON.parse(localStorage.getItem('mc_users') || '[]');
-      const user  = users.find(u => u.email === email && u.password === pass);
+      const user = users.find(u => u.email === email && u.password === pass);
       if (user) {
         localStorage.setItem('mc_current_user', JSON.stringify(user));
         showAlert('Login successful! Redirecting...', 'success');
         setTimeout(() => window.location.href = 'dashboard.html', 1000);
       } else {
-        // Auto-create and login for convenience
-        const newUser = { name: email.split('@')[0], email, password: pass };
-        const allUsers = JSON.parse(localStorage.getItem('mc_users') || '[]');
-        allUsers.push(newUser);
-        localStorage.setItem('mc_users', JSON.stringify(allUsers));
-        localStorage.setItem('mc_current_user', JSON.stringify(newUser));
-        showAlert('Login successful! Redirecting...', 'success');
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+        showAlert('Invalid email or password. Try registering first.', 'danger');
       }
     }
 
@@ -146,7 +124,9 @@
       if (pass !== confirm) { showAlert('Passwords do not match.', 'danger'); return; }
       if (pass.length < 6)  { showAlert('Password must be at least 6 characters.', 'danger'); return; }
 
-      const users   = JSON.parse(localStorage.getItem('mc_users') || '[]');
+      const users = JSON.parse(localStorage.getItem('mc_users') || '[]');
+      if (users.find(u => u.email === email)) { showAlert('Email already registered. Please login.', 'danger'); return; }
+
       const newUser = { name, email, password: pass };
       users.push(newUser);
       localStorage.setItem('mc_users', JSON.stringify(users));
@@ -155,6 +135,7 @@
       setTimeout(() => window.location.href = 'dashboard.html', 1200);
     }
 
+    // Auto-switch to register tab if URL has #register
     if (window.location.hash === '#register') switchTab('register');
   </script>
 </body>

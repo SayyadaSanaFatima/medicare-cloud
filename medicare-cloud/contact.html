@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Contact MediCare Cloud - Send us your queries and feedback." />
+  <title>Contact - MediCare Cloud</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">🏥 Medicare<span>Cloud</span></div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+    </ul>
+    <div class="nav-buttons">
+      <a href="login.html" class="btn btn-outline">Login</a>
+      <a href="login.html" class="btn btn-primary">Get Started</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="about-hero">
+    <h1>Get In <span style="color:var(--primary);">Touch</span></h1>
+    <p>Have a question or feedback? We'd love to hear from you.</p>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section class="section">
+    <div class="contact-grid">
+
+      <!-- INFO CARD -->
+      <div class="contact-info-card">
+        <h3>Contact Information</h3>
+        <p>Fill out the form and we'll get back to you as soon as possible. You can also reach us through the details below.</p>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">📧</div>
+          <span>b24cn003@kitsw.ac.in</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">👩‍💻</div>
+          <span>Sayyada Sana Fatima</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">🏫</div>
+          <span>SITER Academy Summer Internship 2026</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">🔗</div>
+          <span>github.com/SayyadaSanaFatima/medicare-cloud</span>
+        </div>
+        <div style="margin-top:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.2);">
+          <p style="font-size:0.82rem; opacity:0.8;">📧 Contact form submissions are processed via <strong>Azure Communication Services</strong> and delivered to the registered email address.</p>
+        </div>
+      </div>
+
+      <!-- FORM CARD -->
+      <div class="card">
+        <div class="card-header">
+          <h2>✉️ Send a Message</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert" id="contactAlert"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Your Name *</label>
+              <input type="text" class="form-control" id="cName" placeholder="Your full name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address *</label>
+              <input type="email" class="form-control" id="cEmail" placeholder="your@email.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject *</label>
+            <select class="form-control" id="cSubject">
+              <option value="">Select a subject</option>
+              <option>General Query</option>
+              <option>Technical Support</option>
+              <option>Feature Request</option>
+              <option>Bug Report</option>
+              <option>Feedback</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message *</label>
+            <textarea class="form-control" id="cMessage" rows="5" placeholder="Write your message here..."></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="sendMessage()">
+            📨 Send Message
+          </button>
+          <p style="font-size:0.78rem;color:var(--gray);margin-top:12px;text-align:center;">
+            🔒 Your message is sent securely via Azure Communication Services
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="section section-alt">
+    <div class="section-title">
+      <h2>Frequently Asked Questions</h2>
+      <div class="line"></div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;">
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-body">
+          <strong>Is MediCare Cloud free to use?</strong>
+          <p style="font-size:0.88rem;color:var(--gray);margin-top:6px;">Yes! MediCare Cloud is hosted on Azure Free Tier which provides free hosting for static web apps and limited backend usage.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-body">
+          <strong>Where is my health data stored?</strong>
+          <p style="font-size:0.88rem;color:var(--gray);margin-top:6px;">All structured data (medicines, reminders) is stored in Azure SQL Database. Health record files (PDFs, images) are stored in Azure Blob Storage.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-body">
+          <strong>How do email reminders work?</strong>
+          <p style="font-size:0.88rem;color:var(--gray);margin-top:6px;">The Python Flask backend on Azure App Service runs a scheduler that sends emails at your set reminder times using Azure Communication Services.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <strong>Can I access my data from any device?</strong>
+          <p style="font-size:0.88rem;color:var(--gray);margin-top:6px;">Yes! Since everything is stored in the Azure cloud, you can access MediCare Cloud from any mobile, tablet, or desktop browser.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>🏥 MediCare Cloud</h3>
+        <p>Medicine Reminder and Health Records Management System. Built on Microsoft Azure.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Login</a>
+      </div>
+      <div class="footer-col">
+        <h4>Features</h4>
+        <a href="#">Medicine Reminders</a>
+        <a href="#">Health Records</a>
+        <a href="#">Dashboard</a>
+      </div>
+      <div class="footer-col">
+        <h4>Cloud Tech</h4>
+        <a href="#">Azure Static Web Apps</a>
+        <a href="#">Azure App Service</a>
+        <a href="#">Azure SQL Database</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 MediCare Cloud | SITER Academy Summer Internship | Cloud Computing Domain</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    function showAlert(msg, type) {
+      const el = document.getElementById('contactAlert');
+      el.textContent = msg;
+      el.className = 'alert show alert-' + type;
+    }
+
+    function sendMessage() {
+      const name    = document.getElementById('cName').value.trim();
+      const email   = document.getElementById('cEmail').value.trim();
+      const subject = document.getElementById('cSubject').value;
+      const message = document.getElementById('cMessage').value.trim();
+      if (!name || !email || !subject || !message) {
+        showAlert('Please fill in all fields.', 'danger'); return;
+      }
+      // In real deployment: POST to Flask API → Azure Communication Services sends email
+      showAlert('✅ Message sent successfully! We will get back to you soon.', 'success');
+      document.getElementById('cName').value    = '';
+      document.getElementById('cEmail').value   = '';
+      document.getElementById('cSubject').value = '';
+      document.getElementById('cMessage').value = '';
+    }
+  </script>
+</body>
+</html>

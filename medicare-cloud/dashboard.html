@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MediCare Cloud Dashboard - View your medicine schedule and health records." />
+  <title>Dashboard - MediCare Cloud</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">🏥 Medicare<span>Cloud</span></div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="medicines.html">Medicines</a></li>
+      <li><a href="records.html">Health Records</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-buttons">
+      <span id="navUserName" style="font-size:0.85rem; color:var(--gray); font-weight:500;"></span>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="dashboard-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">U</div>
+        <div class="sidebar-name" id="sidebarName">User</div>
+        <div class="sidebar-email" id="sidebarEmail">user@email.com</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="active"><span>📊</span> Dashboard</a>
+        <a href="medicines.html"><span>💊</span> Medicines</a>
+        <a href="records.html"><span>📁</span> Health Records</a>
+        <a href="contact.html"><span>✉️</span> Contact</a>
+        <a href="about.html"><span>ℹ️</span> About</a>
+        <a href="#" onclick="logout()"><span>🚪</span> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>👋 Good Day, <span id="headerName">User</span>!</h1>
+        <div style="font-size:0.85rem; color:var(--gray);" id="todayDate"></div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="dash-stats">
+        <div class="dash-stat">
+          <div class="dash-stat-icon blue">💊</div>
+          <div>
+            <div class="dash-stat-num" id="totalMeds">0</div>
+            <div class="dash-stat-label">Total medicines</div>
+          </div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon green">✅</div>
+          <div>
+            <div class="dash-stat-num" id="takenMeds" style="color:var(--success)">0</div>
+            <div class="dash-stat-label">Taken today</div>
+          </div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon amber">⏰</div>
+          <div>
+            <div class="dash-stat-num" id="pendingMeds" style="color:#856404">0</div>
+            <div class="dash-stat-label">Pending today</div>
+          </div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon blue">📁</div>
+          <div>
+            <div class="dash-stat-num" id="totalRecords">0</div>
+            <div class="dash-stat-label">Health records</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODAY'S MEDICINES -->
+      <div class="card">
+        <div class="card-header">
+          <h2>💊 Today's Medicine Schedule</h2>
+          <a href="medicines.html" class="btn btn-primary btn-sm">+ Add Medicine</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Dosage</th>
+                <th>Frequency</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="medTableBody">
+              <tr><td colspan="6" style="text-align:center; color:var(--gray); padding:30px;">No medicines added yet. <a href="medicines.html" style="color:var(--primary)">Add your first medicine →</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RECENT RECORDS -->
+      <div class="card">
+        <div class="card-header">
+          <h2>📁 Recent Health Records</h2>
+          <a href="records.html" class="btn btn-primary btn-sm">+ Upload Record</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead>
+              <tr>
+                <th>File Name</th>
+                <th>Type</th>
+                <th>Date Uploaded</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="recordsTableBody">
+              <tr><td colspan="4" style="text-align:center; color:var(--gray); padding:30px;">No records uploaded yet. <a href="records.html" style="color:var(--primary)">Upload your first record →</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AZURE INFO CARD -->
+      <div class="card" style="border-left: 4px solid var(--primary);">
+        <div class="card-body" style="display:flex; align-items:center; gap:16px;">
+          <div style="font-size:2rem;">☁️</div>
+          <div>
+            <strong style="font-size:0.95rem;">Powered by Microsoft Azure</strong>
+            <p style="font-size:0.82rem; color:var(--gray); margin-top:4px;">Your medicines and health records are stored securely on Azure SQL Database and Azure Blob Storage with 99.9% uptime guarantee.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Auth check
+    const user = JSON.parse(localStorage.getItem('mc_current_user') || 'null');
+    if (!user) { window.location.href = 'login.html'; }
+
+    // Set user info
+    document.getElementById('navUserName').textContent = user ? user.name : '';
+    document.getElementById('sidebarName').textContent = user ? user.name : '';
+    document.getElementById('sidebarEmail').textContent = user ? user.email : '';
+    document.getElementById('sidebarAvatar').textContent = user ? user.name.charAt(0).toUpperCase() : 'U';
+    document.getElementById('headerName').textContent = user ? user.name.split(' ')[0] : '';
+
+    // Today's date
+    document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // Load medicines
+    function loadDashboard() {
+      const medicines = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+      const records   = JSON.parse(localStorage.getItem('mc_records')   || '[]');
+      const taken     = JSON.parse(localStorage.getItem('mc_taken_today') || '[]');
+
+      document.getElementById('totalMeds').textContent   = medicines.length;
+      document.getElementById('takenMeds').textContent   = taken.length;
+      document.getElementById('pendingMeds').textContent = Math.max(0, medicines.length - taken.length);
+      document.getElementById('totalRecords').textContent = records.length;
+
+      const tbody = document.getElementById('medTableBody');
+      if (medicines.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:30px;">No medicines added yet. <a href="medicines.html" style="color:var(--primary)">Add your first medicine →</a></td></tr>';
+      } else {
+        tbody.innerHTML = medicines.map((m, i) => {
+          const isTaken = taken.includes(String(i));
+          return `<tr>
+            <td><strong>${m.name}</strong></td>
+            <td>${m.dosage}</td>
+            <td>${m.frequency}</td>
+            <td>${m.time}</td>
+            <td><span class="badge ${isTaken ? 'badge-success' : 'badge-warning'}">${isTaken ? '✓ Taken' : '⏰ Pending'}</span></td>
+            <td>${!isTaken ? `<button class="btn btn-success btn-sm" onclick="markTaken(${i})">Mark Taken</button>` : '—'}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      const rBody = document.getElementById('recordsTableBody');
+      const recent = records.slice(-5).reverse();
+      if (recent.length === 0) {
+        rBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:30px;">No records uploaded yet. <a href="records.html" style="color:var(--primary)">Upload your first record →</a></td></tr>';
+      } else {
+        rBody.innerHTML = recent.map(r => `<tr>
+          <td>📄 ${r.name}</td>
+          <td><span class="badge badge-info">${r.type}</span></td>
+          <td>${r.date}</td>
+          <td><a href="records.html" style="color:var(--primary)">View</a></td>
+        </tr>`).join('');
+      }
+    }
+
+    function markTaken(i) {
+      const taken = JSON.parse(localStorage.getItem('mc_taken_today') || '[]');
+      if (!taken.includes(String(i))) taken.push(String(i));
+      localStorage.setItem('mc_taken_today', JSON.stringify(taken));
+      loadDashboard();
+    }
+
+    function logout() {
+      localStorage.removeItem('mc_current_user');
+      localStorage.removeItem('mc_taken_today');
+      window.location.href = 'login.html';
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
