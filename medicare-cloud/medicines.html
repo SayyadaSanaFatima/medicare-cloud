@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MediCare Cloud - Manage your medicine reminders and schedules." />
+  <title>Medicines - MediCare Cloud</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">🏥 Medicare<span>Cloud</span></div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="medicines.html" class="active">Medicines</a></li>
+      <li><a href="records.html">Health Records</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-buttons">
+      <span id="navUserName" style="font-size:0.85rem;color:var(--gray);font-weight:500;"></span>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">U</div>
+        <div class="sidebar-name" id="sidebarName">User</div>
+        <div class="sidebar-email" id="sidebarEmail">user@email.com</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><span>📊</span> Dashboard</a>
+        <a href="medicines.html" class="active"><span>💊</span> Medicines</a>
+        <a href="records.html"><span>📁</span> Health Records</a>
+        <a href="contact.html"><span>✉️</span> Contact</a>
+        <a href="about.html"><span>ℹ️</span> About</a>
+        <a href="#" onclick="logout()"><span>🚪</span> Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>💊 Medicine Tracker</h1>
+        <button class="btn btn-primary" onclick="toggleForm()">+ Add Medicine</button>
+      </div>
+
+      <!-- ALERT -->
+      <div class="alert" id="medAlert"></div>
+
+      <!-- ADD MEDICINE FORM -->
+      <div class="card" id="addForm" style="display:none; margin-bottom:24px;">
+        <div class="card-header">
+          <h2>Add New Medicine</h2>
+          <button class="btn btn-outline btn-sm" onclick="toggleForm()">✕ Close</button>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Medicine Name *</label>
+              <input type="text" class="form-control" id="medName" placeholder="e.g. Paracetamol" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dosage *</label>
+              <input type="text" class="form-control" id="medDosage" placeholder="e.g. 500mg" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Frequency *</label>
+              <select class="form-control" id="medFreq">
+                <option value="">Select frequency</option>
+                <option>Once daily</option>
+                <option>Twice daily</option>
+                <option>Three times daily</option>
+                <option>Weekly</option>
+                <option>As needed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reminder Time *</label>
+              <input type="time" class="form-control" id="medTime" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instructions (optional)</label>
+            <input type="text" class="form-control" id="medInstructions" placeholder="e.g. After meals, with water" />
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="saveMedicine()">💾 Save Medicine</button>
+            <button class="btn btn-outline" onclick="toggleForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDIT FORM (hidden) -->
+      <div class="card" id="editForm" style="display:none; margin-bottom:24px; border-left:4px solid var(--warning);">
+        <div class="card-header">
+          <h2>✏️ Edit Medicine</h2>
+          <button class="btn btn-outline btn-sm" onclick="closeEdit()">✕ Close</button>
+        </div>
+        <div class="card-body">
+          <input type="hidden" id="editIndex" />
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Medicine Name</label>
+              <input type="text" class="form-control" id="editName" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dosage</label>
+              <input type="text" class="form-control" id="editDosage" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Frequency</label>
+              <select class="form-control" id="editFreq">
+                <option>Once daily</option>
+                <option>Twice daily</option>
+                <option>Three times daily</option>
+                <option>Weekly</option>
+                <option>As needed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reminder Time</label>
+              <input type="time" class="form-control" id="editTime" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instructions</label>
+            <input type="text" class="form-control" id="editInstructions" />
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="updateMedicine()">💾 Update Medicine</button>
+            <button class="btn btn-outline" onclick="closeEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICINE LIST -->
+      <div class="card">
+        <div class="card-header">
+          <h2>All Medicines</h2>
+          <span id="medCount" style="font-size:0.85rem;color:var(--gray);">0 medicines</span>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Medicine Name</th>
+                <th>Dosage</th>
+                <th>Frequency</th>
+                <th>Time</th>
+                <th>Instructions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="medList">
+              <tr>
+                <td colspan="7" style="text-align:center;color:var(--gray);padding:40px;">
+                  No medicines added yet. Click <strong>+ Add Medicine</strong> to get started.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REMINDER TIP -->
+      <div class="card" style="border-left:4px solid var(--primary); margin-top:0;">
+        <div class="card-body" style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:1.8rem;">📧</div>
+          <div>
+            <strong style="font-size:0.95rem;">Email Reminders via Azure</strong>
+            <p style="font-size:0.82rem;color:var(--gray);margin-top:4px;">
+              In the full Azure-deployed version, Azure Communication Services sends email reminders to your registered email address at the times you set. Backend integration handled by Python Flask + Azure App Service.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    const user = JSON.parse(localStorage.getItem('mc_current_user') || 'null');
+    if (!user) window.location.href = 'login.html';
+    document.getElementById('navUserName').textContent  = user ? user.name : '';
+    document.getElementById('sidebarName').textContent  = user ? user.name : '';
+    document.getElementById('sidebarEmail').textContent = user ? user.email : '';
+    document.getElementById('sidebarAvatar').textContent = user ? user.name.charAt(0).toUpperCase() : 'U';
+
+    function toggleForm() {
+      const f = document.getElementById('addForm');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+      closeEdit();
+    }
+
+    function closeEdit() {
+      document.getElementById('editForm').style.display = 'none';
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('medAlert');
+      el.textContent = msg;
+      el.className = 'alert show alert-' + type;
+      setTimeout(() => el.className = 'alert', 3000);
+    }
+
+    function saveMedicine() {
+      const name  = document.getElementById('medName').value.trim();
+      const dose  = document.getElementById('medDosage').value.trim();
+      const freq  = document.getElementById('medFreq').value;
+      const time  = document.getElementById('medTime').value;
+      const instr = document.getElementById('medInstructions').value.trim();
+      if (!name || !dose || !freq || !time) { showAlert('Please fill all required fields.', 'danger'); return; }
+
+      const meds = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+      meds.push({ name, dosage: dose, frequency: freq, time, instructions: instr });
+      localStorage.setItem('mc_medicines', JSON.stringify(meds));
+
+      // Reset form
+      ['medName','medDosage','medTime','medInstructions'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('medFreq').value = '';
+      document.getElementById('addForm').style.display = 'none';
+      showAlert('✅ Medicine saved successfully!', 'success');
+      loadMedicines();
+    }
+
+    function deleteMedicine(i) {
+      if (!confirm('Delete this medicine?')) return;
+      const meds = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+      meds.splice(i, 1);
+      localStorage.setItem('mc_medicines', JSON.stringify(meds));
+      showAlert('Medicine deleted.', 'success');
+      loadMedicines();
+    }
+
+    function openEdit(i) {
+      const meds = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+      const m = meds[i];
+      document.getElementById('editIndex').value        = i;
+      document.getElementById('editName').value         = m.name;
+      document.getElementById('editDosage').value       = m.dosage;
+      document.getElementById('editFreq').value         = m.frequency;
+      document.getElementById('editTime').value         = m.time;
+      document.getElementById('editInstructions').value = m.instructions || '';
+      document.getElementById('editForm').style.display = 'block';
+      document.getElementById('addForm').style.display  = 'none';
+      document.getElementById('editForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function updateMedicine() {
+      const i     = parseInt(document.getElementById('editIndex').value);
+      const meds  = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+      meds[i] = {
+        name:         document.getElementById('editName').value.trim(),
+        dosage:       document.getElementById('editDosage').value.trim(),
+        frequency:    document.getElementById('editFreq').value,
+        time:         document.getElementById('editTime').value,
+        instructions: document.getElementById('editInstructions').value.trim(),
+      };
+      localStorage.setItem('mc_medicines', JSON.stringify(meds));
+      closeEdit();
+      showAlert('✅ Medicine updated!', 'success');
+      loadMedicines();
+    }
+
+    function loadMedicines() {
+      const meds = JSON.parse(localStorage.getItem('mc_medicines') || '[]');
+      document.getElementById('medCount').textContent = meds.length + ' medicine' + (meds.length !== 1 ? 's' : '');
+      const tbody = document.getElementById('medList');
+      if (meds.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:40px;">No medicines added yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = meds.map((m, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.dosage}</td>
+          <td><span class="badge badge-info">${m.frequency}</span></td>
+          <td>⏰ ${m.time}</td>
+          <td style="color:var(--gray);font-size:0.82rem;">${m.instructions || '—'}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" onclick="openEdit(${i})">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteMedicine(${i})">🗑️ Delete</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function logout() {
+      localStorage.removeItem('mc_current_user');
+      window.location.href = 'login.html';
+    }
+
+    loadMedicines();
+  </script>
+</body>
+</html>

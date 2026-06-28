@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Login or Register to MediCare Cloud - Your personal health management system." />
+  <title>Login / Register - MediCare Cloud</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <h2>🏥 MediCare Cloud</h2>
+        <p>Medicine Reminder & Health Records</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+        <button class="auth-tab" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- ALERT BOX -->
+      <div class="alert" id="authAlert"></div>
+
+      <!-- LOGIN FORM -->
+      <div class="auth-form active" id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" id="loginEmail" placeholder="your@email.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required />
+        </div>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 11px;" onclick="handleLogin()">
+          Login to Dashboard
+        </button>
+        <p style="text-align: center; font-size: 0.82rem; color: var(--gray); margin-top: 16px;">
+          Don't have an account? <a href="#" onclick="switchTab('register')" style="color: var(--primary); font-weight: 500;">Register here</a>
+        </p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="regName" placeholder="Your full name" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" id="regEmail" placeholder="your@email.com" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="regConfirm" placeholder="Repeat password" required />
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 11px;" onclick="handleRegister()">
+          Create Account
+        </button>
+        <p style="text-align: center; font-size: 0.82rem; color: var(--gray); margin-top: 16px;">
+          Already have an account? <a href="#" onclick="switchTab('login')" style="color: var(--primary); font-weight: 500;">Login here</a>
+        </p>
+      </div>
+
+      <p style="text-align: center; font-size: 0.75rem; color: #adb5bd; margin-top: 20px;">
+        🔒 Your data is stored securely on Microsoft Azure
+      </p>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach((t, i) => {
+        t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+      });
+      document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+      document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+      hideAlert();
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('authAlert');
+      el.textContent = msg;
+      el.className = 'alert show alert-' + type;
+    }
+
+    function hideAlert() {
+      document.getElementById('authAlert').className = 'alert';
+    }
+
+    function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass  = document.getElementById('loginPassword').value.trim();
+      if (!email || !pass) { showAlert('Please fill in all fields.', 'danger'); return; }
+
+      // Demo: save to localStorage and redirect
+      // In real app: send POST request to Flask API
+      const users = JSON.parse(localStorage.getItem('mc_users') || '[]');
+      const user = users.find(u => u.email === email && u.password === pass);
+      if (user) {
+        localStorage.setItem('mc_current_user', JSON.stringify(user));
+        showAlert('Login successful! Redirecting...', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+      } else {
+        showAlert('Invalid email or password. Try registering first.', 'danger');
+      }
+    }
+
+    function handleRegister() {
+      const name    = document.getElementById('regName').value.trim();
+      const email   = document.getElementById('regEmail').value.trim();
+      const pass    = document.getElementById('regPassword').value.trim();
+      const confirm = document.getElementById('regConfirm').value.trim();
+      if (!name || !email || !pass || !confirm) { showAlert('Please fill in all fields.', 'danger'); return; }
+      if (pass !== confirm) { showAlert('Passwords do not match.', 'danger'); return; }
+      if (pass.length < 6)  { showAlert('Password must be at least 6 characters.', 'danger'); return; }
+
+      const users = JSON.parse(localStorage.getItem('mc_users') || '[]');
+      if (users.find(u => u.email === email)) { showAlert('Email already registered. Please login.', 'danger'); return; }
+
+      const newUser = { name, email, password: pass };
+      users.push(newUser);
+      localStorage.setItem('mc_users', JSON.stringify(users));
+      localStorage.setItem('mc_current_user', JSON.stringify(newUser));
+      showAlert('Account created! Redirecting to dashboard...', 'success');
+      setTimeout(() => window.location.href = 'dashboard.html', 1200);
+    }
+
+    // Auto-switch to register tab if URL has #register
+    if (window.location.hash === '#register') switchTab('register');
+  </script>
+</body>
+</html>
